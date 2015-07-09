@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import search_agent
 import hit_probability_functions
 import simulation
-from config.demo import *
+from config.demo_rectangular_plumes_solid import *
 
 
 def main():

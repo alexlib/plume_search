@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import search_agent
 import simulation
 
-from config.rectangular_plumes_uniform_vary_theta import *
+from config.rectangular_plumes_solid_vary_theta import *
 
 plume_found = np.zeros((N_ENVIRONMENTS, len(THETAS)))
 search_times = np.nan * np.ones((N_ENVIRONMENTS, len(THETAS)), dtype=float)

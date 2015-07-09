@@ -13,10 +13,14 @@ class LinearSearcher(object):
         self.vx = self.speed * np.cos(self.theta)
         self.vy = self.speed * np.sin(self.theta)
 
-        self.pos = np.array([0., 0])
+        self.pos = None
+        self.reset()
 
     def move(self, dt):
         self.pos += np.array([self.vx * dt, self.vy * dt])
+
+    def reset(self):
+        self.pos = np.array([0., 0])
 
     @staticmethod
     def detect_odor(hit_prob):

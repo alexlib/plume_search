@@ -9,7 +9,6 @@ class Simulation(object):
     Class for running a simulation of an agent moving through an environment
     filled with plume sources.
 
-    :param agent: tracking agent instance
     :param hit_probability_function: function calculating hit probability at an array of displacements from a source
     :param params: parameter dict for hit_probability function
     :param src_density: density of sources (#/m^2)
@@ -19,11 +18,11 @@ class Simulation(object):
     :param plume_map_resolution: resolution (num_pix_x, num_pix_y) to use when drawing plume_map if plotting is desired
     """
 
-    def __init__(self, agent, hit_probability_function, params,
+    def __init__(self, hit_probability_function, params,
                  src_density, search_time_max, dt, plume_bdry_hit_prob=1e-5,
                  plume_map_resolution=(100, 100)):
 
-        self.agent = agent
+        self._agent = None
         self.hit_probability_function = hit_probability_function
         self.params_hpf = params
         self.src_density = src_density
@@ -37,6 +36,27 @@ class Simulation(object):
             return self.hit_probability_function(dx, dy, **self.params_hpf)
         self.hit_prob_short = hit_prob_short
 
+        # set null hidden variable that will contain displayable map
+        self._plume_map = None
+
+        # set other variables to null values
+        self.n_srcs = None
+        self.src_positions = None
+        self.plume_found = False
+        self.search_time = None
+        self.pos_plume_found = None
+        self.step_ctr = 0
+
+    @property
+    def agent(self):
+        return self._agent
+
+    @agent.setter
+    def agent(self, agent):
+        """
+        :param agent: tracking agent instance
+        """
+        self._agent = agent
         # determine effective plume boundaries
         bdry_plume = [0, 0, 0, 0]  # [x_min, x_max, y_min, y_max]
         directions = np.array([[-1, 0], [1, 0], [0, -1], [0, 1]])
@@ -55,12 +75,12 @@ class Simulation(object):
                         bdry_plume[ctr] = dr[1]
 
                 else:
-                    dr += direction * self.agent.speed * self.dt
+                    dr += direction * self._agent.speed * self.dt
 
         self.bdry_plume = np.array(bdry_plume)
 
         # determine agent boundary
-        dist_max = self.search_time_max * self.agent.speed
+        dist_max = self.search_time_max * self._agent.speed
         bdry_agent = [-dist_max, dist_max, -dist_max, dist_max]  # [x_min, x_max, y_min, y_max]
         self.bdry_agent = np.array(bdry_agent)
 
@@ -72,15 +92,10 @@ class Simulation(object):
         self.bdry_env[3] = self.bdry_agent[3] - self.bdry_plume[2]
         self.area_env = (self.bdry_env[1] - self.bdry_env[0]) * (self.bdry_env[3] - self.bdry_env[2])
 
-        # set null hidden variable that will contain displayable map
-        self._plume_map = None
-
-        # set other variables to null values
-        self.n_srcs = None
-        self.src_positions = None
+    def reset(self):
         self.plume_found = False
         self.search_time = None
-        self.pos_found_plume = None
+        self.pos_plume_found = None
         self.step_ctr = 0
 
     def set_src_positions(self, src_positions):
@@ -120,7 +135,7 @@ class Simulation(object):
         if self.agent.detect_odor(hit_prob):
             self.plume_found = True
             self.search_time = self.step_ctr * self.dt
-            self.pos_found_plume = self.agent.pos
+            self.pos_plume_found = self.agent.pos
             print('Found plume!')
 
     def run(self, with_plot=False, ax=None, draw_every=10):

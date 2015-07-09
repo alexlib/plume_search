@@ -136,7 +136,6 @@ class Simulation(object):
             self.plume_found = True
             self.search_time = self.step_ctr * self.dt
             self.pos_plume_found = self.agent.pos
-            print('Found plume!')
 
     def run(self, with_plot=False, ax=None, draw_every=10):
         """

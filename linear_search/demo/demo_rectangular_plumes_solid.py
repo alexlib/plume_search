@@ -9,7 +9,7 @@ from config.demo_rectangular_plumes_solid import *
 
 
 def main():
-    hit_probability_function = hit_probability_functions.uniform_box
+    hit_probability_function = hit_probability_functions.uniform_box_solid
     sim = simulation.Simulation(hit_probability_function, PARAMS,
                                 SRC_DENSITY, SEARCH_TIME_MAX, DT,
                                 plume_map_resolution=(500, 500))

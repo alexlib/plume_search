@@ -10,8 +10,8 @@ DT = .1
 
 # HIT PROBABILITY
 HIT_PROBABILITY_FUNCTION = hit_probability_functions.uniform_box_solid
-PARAMS = {'dim_x': 2,
-          'dim_y': .3}
+PARAMS = {'dim_x': 3,
+          'dim_y': .1}
 
 # LOOPING PARAMETERS
 N_ENVIRONMENTS = 100

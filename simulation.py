@@ -1,0 +1,162 @@
+from __future__ import print_function, division
+import numpy as np
+import matplotlib.pyplot as plt; plt.ion()
+import matplotlib.cm as cm
+
+
+class Simulation(object):
+    """
+    Class for running a simulation of an agent moving through an environment
+    filled with plume sources.
+    """
+
+    def __init__(self, agent, hit_probability_function, params,
+                 src_density, search_time_max, dt, plume_bdry_hit_prob=1e-5,
+                 plume_map_resolution=(100, 100)):
+
+        self.agent = agent
+        self.hit_probability_function = hit_probability_function
+        self.params_hpf = params
+        self.src_density = src_density
+        self.search_time_max = search_time_max
+        self.dt = dt
+        self.plume_bdry_hit_prob = plume_bdry_hit_prob
+        self.plume_map_resolution = plume_map_resolution
+        self.n_steps_max = int(np.ceil(search_time_max / dt))
+
+        def hit_prob_short(dx, dy):
+            return self.hit_probability_function(dx, dy, **self.params_hpf)
+        self.hit_prob_short = hit_prob_short
+
+        # determine effective plume boundaries
+        bdry_plume = [0, 0, 0, 0]  # [x_min, x_max, y_min, y_max]
+        directions = np.array([[-1, 0], [1, 0], [0, -1], [0, 1]])
+
+        for ctr, direction in enumerate(directions):
+            # move in this direction until the hit probability becomes less than bdry_prob
+            dr = np.array([0, 0], dtype=float)
+
+            while bdry_plume[ctr] == 0:
+                hit_prob = self.hit_prob_short(*dr)
+
+                if hit_prob < self.plume_bdry_hit_prob:
+                    if ctr in [0, 1]:
+                        bdry_plume[ctr] = dr[0]
+                    elif ctr in [2, 3]:
+                        bdry_plume[ctr] = dr[1]
+
+                else:
+                    dr += direction * self.agent.speed * self.dt
+
+        self.bdry_plume = np.array(bdry_plume)
+
+        # determine agent boundary
+        dist_max = self.search_time_max * self.agent.speed
+        bdry_agent = [-dist_max, dist_max, -dist_max, dist_max]  # [x_min, x_max, y_min, y_max]
+        self.bdry_agent = np.array(bdry_agent)
+
+        # determine environment boundary (region in which sources can be distributed)
+        self.bdry_env = [0, 0, 0, 0]
+        self.bdry_env[0] = self.bdry_agent[0] - self.bdry_plume[1]
+        self.bdry_env[1] = self.bdry_agent[1] - self.bdry_plume[0]
+        self.bdry_env[2] = self.bdry_agent[2] - self.bdry_plume[3]
+        self.bdry_env[3] = self.bdry_agent[3] - self.bdry_plume[2]
+        self.area_env = (self.bdry_env[1] - self.bdry_env[0]) * (self.bdry_env[3] - self.bdry_env[2])
+
+        # set null hidden variable that will contain displayable map
+        self._plume_map = None
+
+        # set other variables to null values
+        self.n_srcs = None
+        self.src_positions = None
+        self.plume_found = False
+        self.search_time = None
+        self.pos_found_plume = None
+        self.step_ctr = 0
+
+    def set_src_positions(self, src_positions):
+        """
+        Set all source positions in the environment.
+        :param src_positions:
+        :return:
+        """
+        if isinstance(src_positions, str):
+            if src_positions == 'random':
+                # sample number of sources from Poisson distribution
+                self.n_srcs = np.random.poisson(self.area_env * self.src_density)
+                # get src positions
+                pos_min = [self.bdry_env[0], self.bdry_env[2]]
+                pos_max = [self.bdry_env[1], self.bdry_env[3]]
+                self.src_positions = np.random.uniform(pos_min, pos_max, (self.n_srcs, 2))
+
+        else:
+            self.n_srcs = len(src_positions)
+            self.src_positions = src_positions
+
+        self._plume_map = None
+
+    def step(self):
+        """
+        Move the simulation forward one step.
+        """
+        self.step_ctr += 1
+        self.agent.move(self.dt)
+        if self.n_srcs:
+            dspl_to_srcs = self.agent.pos - self.src_positions
+            miss_prob = (1 - self.hit_prob_short(dspl_to_srcs[:, 0], dspl_to_srcs[:, 1])).prod()
+        else:
+            miss_prob = 1
+
+        hit_prob = 1 - miss_prob
+
+        if self.agent.detect_odor(hit_prob):
+            self.plume_found = True
+            self.search_time = self.step_ctr * self.dt
+            self.pos_found_plume = self.agent.pos
+            print('Found plume!')
+
+    def run_with_plot(self, ax, draw_every=10):
+        ax.matshow(self.plume_map.T, origin='lower', cmap=cm.hot, extent=self.bdry_env, zorder=0)
+        point = ax.scatter(*self.agent.pos, lw=0, zorder=1)
+        ax.set_xlim(self.bdry_env[:2])
+        ax.set_ylim(self.bdry_env[2:])
+        plt.draw()
+
+        for step_ctr in range(self.n_steps_max):
+            self.step()
+
+            # update plot if it's time to do so
+            if step_ctr % draw_every == 0 or self.plume_found:
+                point.set_offsets([self.agent.pos])
+
+                if self.plume_found:
+                    ax.scatter(self.agent.pos[0], self.agent.pos[1], marker='x', s=50, lw=4, c='c', zorder=10)
+                    plt.draw()
+                    break
+
+                plt.draw()
+
+    @property
+    def plume_map(self):
+        if self._plume_map is None:
+            bins_x = np.linspace(self.bdry_env[0], self.bdry_env[1], self.plume_map_resolution[0])
+            bins_y = np.linspace(self.bdry_env[2], self.bdry_env[3], self.plume_map_resolution[1])
+
+            x = 0.5 * (bins_x[:-1] + bins_x[1:])
+            y = 0.5 * (bins_y[:-1] + bins_y[1:])
+
+            xm, ym = np.meshgrid(x, y, indexing='ij')
+
+            # calculate miss probability
+            prob_miss = np.ones(xm.shape, dtype=float)
+
+            for src_position in self.src_positions:
+                dx = xm - src_position[0]
+                dy = ym - src_position[1]
+                prob_miss *= (1 - self.hit_prob_short(dx, dy))
+
+            # calculate hit probability
+            prob_hit = 1 - prob_miss
+            self._plume_map = prob_hit
+
+        return self._plume_map

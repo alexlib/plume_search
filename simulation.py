@@ -8,6 +8,15 @@ class Simulation(object):
     """
     Class for running a simulation of an agent moving through an environment
     filled with plume sources.
+
+    :param agent: tracking agent instance
+    :param hit_probability_function: function calculating hit probability at an array of displacements from a source
+    :param params: parameter dict for hit_probability function
+    :param src_density: density of sources (#/m^2)
+    :param search_time_max: maximum search time (s)
+    :param dt: timestep
+    :param plume_bdry_hit_prob: value that hit probability must be lower than to be considered outside the plume
+    :param plume_map_resolution: resolution (num_pix_x, num_pix_y) to use when drawing plume_map if plotting is desired
     """
 
     def __init__(self, agent, hit_probability_function, params,
@@ -77,8 +86,7 @@ class Simulation(object):
     def set_src_positions(self, src_positions):
         """
         Set all source positions in the environment.
-        :param src_positions:
-        :return:
+        :param src_positions: list/array of source positions
         """
         if isinstance(src_positions, str):
             if src_positions == 'random':
@@ -115,26 +123,36 @@ class Simulation(object):
             self.pos_found_plume = self.agent.pos
             print('Found plume!')
 
-    def run_with_plot(self, ax, draw_every=10):
-        ax.matshow(self.plume_map.T, origin='lower', cmap=cm.hot, extent=self.bdry_env, zorder=0)
-        point = ax.scatter(*self.agent.pos, lw=0, zorder=1)
-        ax.set_xlim(self.bdry_env[:2])
-        ax.set_ylim(self.bdry_env[2:])
-        plt.draw()
+    def run(self, with_plot=False, ax=None, draw_every=10):
+        """
+        Step until plume is found, updating with plot if desired.
+
+        :param with_plot: set to True to show plot
+        :param ax: axis on which to draw plot
+        :param draw_every: how many timesteps between plot updates
+        """
+
+        if with_plot:
+            ax.matshow(self.plume_map.T, origin='lower', cmap=cm.hot, extent=self.bdry_env, zorder=0)
+            point = ax.scatter(*self.agent.pos, lw=0, zorder=1)
+            ax.set_xlim(self.bdry_env[:2])
+            ax.set_ylim(self.bdry_env[2:])
+            plt.draw()
 
         for step_ctr in range(self.n_steps_max):
             self.step()
 
             # update plot if it's time to do so
-            if step_ctr % draw_every == 0 or self.plume_found:
+            if with_plot and step_ctr % draw_every == 0:
                 point.set_offsets([self.agent.pos])
+                plt.draw()
 
-                if self.plume_found:
+            if self.plume_found:
+                if with_plot:
+                    point.set_visible(False)
                     ax.scatter(self.agent.pos[0], self.agent.pos[1], marker='x', s=50, lw=4, c='c', zorder=10)
                     plt.draw()
-                    break
-
-                plt.draw()
+                break
 
     @property
     def plume_map(self):

@@ -2,7 +2,17 @@ from __future__ import print_function, division
 import numpy as np
 
 
-class LinearSearcher(object):
+class Searcher(object):
+
+    def reset(self):
+        self.pos = np.array([0., 0])
+
+    @staticmethod
+    def detect_odor(hit_prob):
+        return np.random.rand() < hit_prob
+
+
+class LinearSearcher(Searcher):
     """
     Search agent that moves only in a straight line.
     """
@@ -19,9 +29,21 @@ class LinearSearcher(object):
     def move(self, dt):
         self.pos += np.array([self.vx * dt, self.vy * dt])
 
-    def reset(self):
-        self.pos = np.array([0., 0])
 
-    @staticmethod
-    def detect_odor(hit_prob):
-        return np.random.rand() < hit_prob
+class RandomSearcher(Searcher):
+    """
+    Search agent that moves in steps of random direction.
+    """
+
+    def __init__(self, speed):
+        self.speed = speed
+
+        self.pos = None
+        self.reset()
+
+    def move(self, dt):
+        theta = np.random.uniform(-np.pi, np.pi)
+        dx = self.speed * dt * np.cos(theta)
+        dy = self.speed * dt * np.sin(theta)
+
+        self.pos += np.array([dx, dy])

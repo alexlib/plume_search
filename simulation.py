@@ -47,6 +47,8 @@ class Simulation(object):
         self.pos_plume_found = None
         self.step_ctr = 0
 
+        self.traj = None
+
     @property
     def agent(self):
         return self._agent
@@ -145,25 +147,30 @@ class Simulation(object):
         :param ax: axis on which to draw plot
         :param draw_every: how many timesteps between plot updates
         """
+        self.traj = []
 
         if with_plot:
             ax.matshow(self.plume_map.T, origin='lower', cmap=cm.hot, extent=self.bdry_env, zorder=0)
-            point = ax.scatter(*self.agent.pos, lw=0, zorder=1)
             ax.set_xlim(self.bdry_env[:2])
             ax.set_ylim(self.bdry_env[2:])
+
+            ax.set_xlabel('x (m)')
+            ax.set_ylabel('y (m)')
             plt.draw()
 
         for step_ctr in range(self.n_steps_max):
             self.step()
+            self.traj += [self.agent.pos.copy()]
 
             # update plot if it's time to do so
             if with_plot and step_ctr % draw_every == 0:
-                point.set_offsets([self.agent.pos])
+
+                ax.plot(np.array(self.traj)[:, 0], np.array(self.traj)[:, 1], c='b', lw=2, zorder=5)
                 plt.draw()
 
             if self.plume_found:
                 if with_plot:
-                    point.set_visible(False)
+                    ax.plot(np.array(self.traj)[:, 0], np.array(self.traj)[:, 1], c='b', lw=2, zorder=5)
                     ax.scatter(self.agent.pos[0], self.agent.pos[1], marker='x', s=50, lw=4, c='c', zorder=10)
                     plt.draw()
                 break

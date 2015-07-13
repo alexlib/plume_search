@@ -1,6 +1,7 @@
 from __future__ import print_function, division
 import numpy as np
 import matplotlib.pyplot as plt
+from math_tools import stats
 import search_agent
 import simulation
 
@@ -29,16 +30,22 @@ for e_ctr in range(N_ENVIRONMENTS):
             search_times[e_ctr, th_ctr] = sim.search_time
 
 
+plume_found_n = plume_found.sum(0)
 plume_found_prob = plume_found.sum(0) / N_ENVIRONMENTS
 search_times_mean = np.nanmean(search_times, axis=0)
 search_times_std = np.nanstd(search_times, axis=0)
 
-fig, axs = plt.subplots(2, 1, sharex=True)
-axs[0].plot(THETAS, plume_found_prob, lw=2)
-axs[1].errorbar(THETAS, search_times_mean, yerr=search_times_std, lw=2)
+fig, ax = plt.subplots(1, 1, facecolor='white')
+lbs, ubs = np.transpose([stats.binomial_confidence_conjugate_prior(n, N_ENVIRONMENTS) for n in plume_found_n])
+err_lower = plume_found_prob - lbs
+err_upper = ubs - plume_found_prob
+ax.errorbar(THETAS * 180 / np.pi, plume_found_prob, yerr=[err_lower, err_upper], lw=2)
 
-axs[1].set_xlabel('theta')
-axs[0].set_ylabel('P(found plume)')
-axs[1].set_ylabel('T(found plume)')
+ax.set_xlim(-180, 180)
+ax.set_xticks(np.linspace(-180, 180, 9))
+ax.set_ylim(0, 1)
+
+ax.set_xlabel('heading (degrees)')
+ax.set_ylabel('P(found plume)')
 
 plt.show(block=True)

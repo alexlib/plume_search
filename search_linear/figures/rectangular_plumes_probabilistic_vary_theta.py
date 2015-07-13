@@ -35,7 +35,7 @@ plume_found_prob = plume_found_n / N_ENVIRONMENTS
 search_times_mean = np.nanmean(search_times, axis=0)
 search_times_std = np.nanstd(search_times, axis=0)
 
-fig, ax = plt.subplots(1, 1, sharex=True)
+fig, ax = plt.subplots(1, 1, facecolor='white')
 lbs, ubs = np.transpose([stats.binomial_confidence_conjugate_prior(n, N_ENVIRONMENTS) for n in plume_found_n])
 err_lower = plume_found_prob - lbs
 err_upper = ubs - plume_found_prob
@@ -45,7 +45,7 @@ ax.set_xlim(-180, 180)
 ax.set_xticks(np.linspace(-180, 180, 9))
 ax.set_ylim(0, 1)
 
-ax.set_xlabel('heading (degrees')
+ax.set_xlabel('heading (degrees)')
 ax.set_ylabel('P(found plume)')
 
 ax.set_title('P_hit = {}'.format(PARAMS['p']))

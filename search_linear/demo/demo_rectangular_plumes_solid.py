@@ -22,7 +22,7 @@ def main():
     _, ax = plt.subplots(1, 1)
     sim.run(with_plot=True, ax=ax, draw_every=20)
 
-    agent2 = search_agent.LinearSearcher(theta=(THETA + np.pi), speed=SPEED)
+    agent2 = search_agent.LinearSearcher(theta=(THETA + 3 * np.pi/4), speed=SPEED)
 
     sim.reset()
     sim.agent = agent2

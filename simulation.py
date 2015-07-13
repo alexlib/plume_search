@@ -67,7 +67,8 @@ class Simulation(object):
             # move in this direction until the hit probability becomes less than bdry_prob
             dr = np.array([0, 0], dtype=float)
 
-            while bdry_plume[ctr] == 0:
+            keep_going = True
+            while keep_going:
                 hit_prob = self.hit_prob_short(*dr)
 
                 if hit_prob < self.plume_bdry_hit_prob:
@@ -75,7 +76,7 @@ class Simulation(object):
                         bdry_plume[ctr] = dr[0]
                     elif ctr in [2, 3]:
                         bdry_plume[ctr] = dr[1]
-
+                    keep_going = False
                 else:
                     dr += direction * self._agent.speed * self.dt
 

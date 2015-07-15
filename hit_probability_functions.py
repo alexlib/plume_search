@@ -76,7 +76,7 @@ def gaussian_solid(dx, dy, r, d, w, th):
     return (c > th).astype(int)
 
 
-def gaussian_probabilistic(dx, dy, r, d, w):
+def gaussian_probabilistic(dx, dy, dt, r, d, w):
     """
     Return 1 if concentration is greater than threshold.
     Plume assumes wind blowing from -x to +x
@@ -91,4 +91,4 @@ def gaussian_probabilistic(dx, dy, r, d, w):
 
     c = gaussian_concentration(dx, dy, r, d, w)
 
-    return 1 - np.exp(-c)
+    return 1 - np.exp(-c*dt)

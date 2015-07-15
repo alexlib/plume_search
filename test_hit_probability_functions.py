@@ -61,14 +61,14 @@ class GaussianPlumeModelsTestCase(unittest.TestCase):
             self.assertGreater(c[idx], 0)
 
     def test_hit_probability_is_one_at_src(self):
-        p = hit_probability_functions.gaussian_probabilistic(0, 0, **self.params)
+        p = hit_probability_functions.gaussian_probabilistic(0, 0, .1, **self.params)
         self.assertEqual(p, 1)
 
     def test_hit_probability_is_zero_uw_and_cw_from_src_and_positive_dw_of_src(self):
-        p_uw = hit_probability_functions.gaussian_probabilistic(-.1, 0, **self.params)
-        p_cw1 = hit_probability_functions.gaussian_probabilistic(0, .1, **self.params)
-        p_cw2 = hit_probability_functions.gaussian_probabilistic(0, -.1, **self.params)
-        p_dw = hit_probability_functions.gaussian_probabilistic(.1, 0., **self.params)
+        p_uw = hit_probability_functions.gaussian_probabilistic(-.1, 0, .1, **self.params)
+        p_cw1 = hit_probability_functions.gaussian_probabilistic(0, .1, .1, **self.params)
+        p_cw2 = hit_probability_functions.gaussian_probabilistic(0, -.1, .1, **self.params)
+        p_dw = hit_probability_functions.gaussian_probabilistic(.1, 0., .1, **self.params)
 
         self.assertEqual(p_uw, 0)
         self.assertEqual(p_cw1, 0)

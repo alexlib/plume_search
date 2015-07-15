@@ -19,7 +19,7 @@ class Simulation(object):
     """
 
     def __init__(self, hit_probability_function, params,
-                 src_density, search_time_max, dt, plume_bdry_hit_prob=1e-5,
+                 src_density, search_time_max, dt, plume_bdry_hit_prob=1e-4,
                  plume_map_resolution=(100, 100)):
 
         self._agent = None
@@ -65,12 +65,13 @@ class Simulation(object):
 
         for ctr, direction in enumerate(directions):
             # move in this direction until the hit probability becomes less than bdry_prob
-            dr = np.array([0, 0], dtype=float)
-
+            if direction[-1] == 0:
+                dr = np.array([0, 0], dtype=float)
+            else:
+                dr = np.array([bdry_plume[1]/2, 0])
             keep_going = True
             while keep_going:
                 hit_prob = self.hit_prob_short(*dr)
-
                 if hit_prob < self.plume_bdry_hit_prob:
                     if ctr in [0, 1]:
                         bdry_plume[ctr] = dr[0]
@@ -151,7 +152,14 @@ class Simulation(object):
         self.traj = []
 
         if with_plot:
+            # show plume profiles
             ax.matshow(self.plume_map.T, origin='lower', cmap=cm.hot, extent=self.bdry_env, zorder=0)
+            # show insect boundary
+            ax.vlines(self.bdry_agent[0], ymin=self.bdry_agent[2], ymax=self.bdry_agent[3], color='w', lw=2)
+            ax.vlines(self.bdry_agent[1], ymin=self.bdry_agent[2], ymax=self.bdry_agent[3], color='w', lw=2)
+            ax.hlines(self.bdry_agent[2], xmin=self.bdry_agent[0], xmax=self.bdry_agent[1], color='w', lw=2)
+            ax.hlines(self.bdry_agent[3], xmin=self.bdry_agent[0], xmax=self.bdry_agent[1], color='w', lw=2)
+
             ax.set_xlim(self.bdry_env[:2])
             ax.set_ylim(self.bdry_env[2:])
 
@@ -164,7 +172,7 @@ class Simulation(object):
             self.traj += [self.agent.pos.copy()]
 
             # update plot if it's time to do so
-            if with_plot and step_ctr % draw_every == 0:
+            if with_plot and (step_ctr % draw_every == 0 or step_ctr == self.n_steps_max - 1):
 
                 ax.plot(np.array(self.traj)[:, 0], np.array(self.traj)[:, 1], c='b', lw=2, zorder=5)
                 plt.draw()

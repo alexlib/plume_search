@@ -73,7 +73,7 @@ def gaussian_solid(dx, dy, r, d, w, th):
 
     c = np.array(gaussian_concentration(dx, dy, r, d, w))
 
-    return (c > th).astype(int)
+    return (c > th).astype(float)
 
 
 def gaussian_probabilistic(dx, dy, dt, r, d, w):

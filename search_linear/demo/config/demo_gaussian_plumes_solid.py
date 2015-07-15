@@ -4,7 +4,7 @@ import numpy as np
 SRC_DENSITY = 0.01  # per m^2
 SEARCH_TIME_MAX = 20  # s
 SPEED = 0.5  # m/s
-THETA = np.pi / 4
+THETAS = np.linspace(0, 2*np.pi, 8, endpoint=False)
 DT = .1
 
 # HIT PROBABILITY PARAMS

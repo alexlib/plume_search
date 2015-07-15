@@ -39,10 +39,21 @@ def gaussian_concentration(dx, dy, r, d, w):
     :param r: source emission rate
     :return:
     """
-    norm_factor = r / (2 * np.sqrt(np.pi * d * dx / w))
-    exp_factor = np.exp(-w * dy**2 / (4 * d * dx))
-
-    c = np.array(norm_factor * exp_factor)
+    if isinstance(dx, (int, long, float)):
+        if dx == 0 and dy == 0:
+            c = np.inf
+        elif dx <= 0:
+            c = 0.
+        else:
+            norm_factor = r / (2 * np.sqrt(np.pi * d * dx))
+            exp_factor = np.exp(-w * dy**2 / (4 * d * dx))
+            c = norm_factor * exp_factor
+    else:
+        norm_factor = r / (2 * np.sqrt(np.pi * d * dx))
+        exp_factor = np.exp(-w * dy**2 / (4 * d * dx))
+        c = norm_factor * exp_factor
+        c[dx <= 0] = 0.
+        c[(dx == 0) * (dy == 0)] = np.inf
 
     return c
 
@@ -60,14 +71,7 @@ def gaussian_solid(dx, dy, r, d, w, th):
     :return: 1 if concentration at dx, dy > threshold, 0 otherwise (nan is returned if dx is negative [uw of source])
     """
 
-    c = gaussian_concentration(dx, dy, r, d, w)
-
-    if c.shape:
-        # if c is a non-zero sized array
-        c[np.isnan(c)] = 0
-    else:
-        if np.isnan(c):
-            c = np.array(0)
+    c = np.array(gaussian_concentration(dx, dy, r, d, w))
 
     return (c > th).astype(int)
 
@@ -86,12 +90,5 @@ def gaussian_probabilistic(dx, dy, r, d, w):
     """
 
     c = gaussian_concentration(dx, dy, r, d, w)
-
-    if c.shape:
-        # if c is a non-zero sized array
-        c[np.isnan(c)] = 0
-    else:
-        if np.isnan(c):
-            c = np.array(0)
 
     return 1 - np.exp(-c)

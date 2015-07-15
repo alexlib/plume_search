@@ -1,7 +1,7 @@
 from __future__ import division
 import numpy as np
 
-SRC_DENSITY = 0.03  # per m^2
+SRC_DENSITY = 0.05  # per m^2
 SEARCH_TIME_MAX = 20  # s
 SPEED = 0.5  # m/s
 THETAS = np.linspace(0, 2*np.pi, 8, endpoint=False)

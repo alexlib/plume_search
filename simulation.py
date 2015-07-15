@@ -19,7 +19,7 @@ class Simulation(object):
     """
 
     def __init__(self, hit_probability_function, params,
-                 src_density, search_time_max, dt, plume_bdry_hit_prob=1e-4,
+                 src_density, search_time_max, dt, plume_bdry_hit_prob=1e-3,
                  plume_map_resolution=(100, 100)):
 
         self._agent = None

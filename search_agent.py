@@ -73,7 +73,7 @@ class LevySearcher2D(Searcher):
         self.sample_next_path = True
         self.theta = None
 
-    def move(self):
+    def move(self, dt):
         if not self.sample_next_path:
             # take another step along the path
             dr = self.step_size * np.array([np.cos(self.theta), np.sin(self.theta)])
@@ -82,7 +82,7 @@ class LevySearcher2D(Searcher):
             # sample direction uniformly
             self.theta = np.random.uniform(0, 2*np.pi)
             # sample path length from power law distribution
-            path_lengths = np.arange(1, self.path_duration_max + 1, dtype=float)
+            path_lengths = np.arange(1, self.path_duration_max_int + 1, dtype=float)
             prob = path_lengths ** -self.levy_index
             prob /= prob.sum()
 

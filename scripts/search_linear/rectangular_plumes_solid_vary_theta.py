@@ -1,11 +1,12 @@
 from __future__ import print_function, division
-import numpy as np
+
 import matplotlib.pyplot as plt
+
 from math_tools import stats
 import search_agent
 import simulation
+from scripts.config.rectangular_plumes_solid_vary_theta import *
 
-from config.gaussian_plumes_solid_vary_theta import *
 
 plume_found = np.zeros((N_ENVIRONMENTS, len(THETAS)))
 search_times = np.nan * np.ones((N_ENVIRONMENTS, len(THETAS)), dtype=float)

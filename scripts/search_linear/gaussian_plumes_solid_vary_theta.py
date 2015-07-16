@@ -1,11 +1,12 @@
 from __future__ import print_function, division
 import numpy as np
 import matplotlib.pyplot as plt
+
 from math_tools import stats
 import search_agent
 import simulation
+from search_linear.config.gaussian_plumes_solid_vary_theta import *
 
-from config.rectangular_plumes_probabilistic_vary_theta import *
 
 plume_found = np.zeros((N_ENVIRONMENTS, len(THETAS)))
 search_times = np.nan * np.ones((N_ENVIRONMENTS, len(THETAS)), dtype=float)
@@ -31,7 +32,7 @@ for e_ctr in range(N_ENVIRONMENTS):
 
 
 plume_found_n = plume_found.sum(0)
-plume_found_prob = plume_found_n / N_ENVIRONMENTS
+plume_found_prob = plume_found.sum(0) / N_ENVIRONMENTS
 search_times_mean = np.nanmean(search_times, axis=0)
 search_times_std = np.nanstd(search_times, axis=0)
 
@@ -47,7 +48,5 @@ ax.set_ylim(0, 1)
 
 ax.set_xlabel('heading (degrees)')
 ax.set_ylabel('P(found plume)')
-
-ax.set_title('P_hit = {}'.format(PARAMS['p']))
 
 plt.show(block=True)

@@ -20,7 +20,7 @@ def main():
     _, ax = plt.subplots(1, 1, facecolor='white')
 
     draw_background = True
-    for theta in THETAS:
+    for theta in THETAS[1:3]:
         agent = search_agent.LinearSearcher(theta=theta, speed=SPEED)
         trial = simulation.Trial2d(env, agent, SEARCH_TIME_MAX, DT)
         trial.run(with_plot=True, ax=ax, draw_every=20, draw_background=draw_background)

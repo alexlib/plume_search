@@ -82,10 +82,12 @@ class Gaussian2D(PlumeStructure):
         if isinstance(dx, (int, long, float)):
             if dx == 0 and dy == 0:
                 return np.inf
-            if dx <= -self.bdry[0] or dx >= self.bdry[1]:
+            elif dx <= 0:
                 return 0
-            if dy <= -self.bdry[2] or dy >= self.bdry[3]:
-                return 0
+            #if dx <= -self.bdry[0] or dx >= self.bdry[1]:
+            #    return 0
+            #if dy <= -self.bdry[2] or dy >= self.bdry[3]:
+            #    return 0
 
             norm_factor = self.r / (2 * np.sqrt(np.pi * self.d * dx))
             exp_factor = np.exp(-self.w * dy**2 / (4 * self.d * dx))
@@ -94,8 +96,9 @@ class Gaussian2D(PlumeStructure):
             norm_factor = self.r / (2 * np.sqrt(np.pi * self.d * dx))
             exp_factor = np.exp(-self.w * dy**2 / (4 * self.d * dx))
             c = norm_factor * exp_factor
-            c[(dx <= -self.bdry[0]) + (dx >= self.bdry[1])] = 0
-            c[(dy <= -self.bdry[2]) + (dy >= self.bdry[3])] = 0
+            #c[(dx <= -self.bdry[0]) + (dx >= self.bdry[1])] = 0
+            #c[(dy <= -self.bdry[2]) + (dy >= self.bdry[3])] = 0
+            c[dx <= 0] = 0
             c[(dx == 0)*(dy == 0)] = np.inf
             return c
 

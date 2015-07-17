@@ -1,52 +1,57 @@
 from __future__ import print_function, division
-import numpy as np
 import matplotlib.pyplot as plt
-
 from math_tools import stats
+
 import search_agent
 import simulation
-from search_linear.config.gaussian_plumes_solid_vary_theta import *
+import plume_structures
+import environments
+
+from config.gaussian_plumes_solid_vary_theta import *
 
 
-plume_found = np.zeros((N_ENVIRONMENTS, len(THETAS)))
+plume_structure = plume_structures.Gaussian2DSolid(**PARAMS_PLUME_STRUCTURE)
+agents = [search_agent.LinearSearcher(theta=theta, speed=SPEED) for theta in THETAS]
+envs = []
+
+sim = simulation.Simulation(plume_structure, agents=agents, n_environments=N_ENVIRONMENTS)
+
+plume_detected = np.zeros((N_ENVIRONMENTS, len(THETAS)))
 search_times = np.nan * np.ones((N_ENVIRONMENTS, len(THETAS)), dtype=float)
 
 for e_ctr in range(N_ENVIRONMENTS):
     print(e_ctr)
-    sim = simulation.Simulation(HIT_PROBABILITY_FUNCTION, PARAMS,
-                                SRC_DENSITY, SEARCH_TIME_MAX, DT)
 
-    for th_ctr, theta in enumerate(THETAS):
-        agent = search_agent.LinearSearcher(theta=theta, speed=SPEED)
+    # make new environment
+    env = environments.Environment2d(plume_structure, SRC_DENSITY, AGENT_SEARCH_RADIUS, SRC_POSITIONS)
+    envs += [env]
+    for a_ctr, agent in enumerate(agents):
+        # set agent's starting position back to zero
+        agent.reset()
 
-        sim.reset()
-        sim.agent = agent
+        trial = simulation.Trial2d(env, agent, SEARCH_TIME_MAX, DT)
+        trial.run()
 
-        if th_ctr == 0:
-            sim.set_src_positions('random')
-
-        sim.run()
-        plume_found[e_ctr, th_ctr] = int(sim.plume_found)
-        if sim.plume_found:
-            search_times[e_ctr, th_ctr] = sim.search_time
+        if trial.plume_detected:
+            plume_detected[e_ctr, a_ctr] = 1
 
 
-plume_found_n = plume_found.sum(0)
-plume_found_prob = plume_found.sum(0) / N_ENVIRONMENTS
-search_times_mean = np.nanmean(search_times, axis=0)
-search_times_std = np.nanstd(search_times, axis=0)
+plume_detected_n = plume_detected.sum(0)
+plume_detected_prob = plume_detected.sum(0) / N_ENVIRONMENTS
 
 fig, ax = plt.subplots(1, 1, facecolor='white')
-lbs, ubs = np.transpose([stats.binomial_confidence_conjugate_prior(n, N_ENVIRONMENTS) for n in plume_found_n])
-err_lower = plume_found_prob - lbs
-err_upper = ubs - plume_found_prob
-ax.errorbar(THETAS * 180 / np.pi, plume_found_prob, yerr=[err_lower, err_upper], lw=2)
+lbs, ubs = np.transpose([stats.binomial_confidence_conjugate_prior(n, N_ENVIRONMENTS) for n in plume_detected_n])
+err_lower = plume_detected_prob - lbs
+err_upper = ubs - plume_detected_prob
+ax.errorbar(THETAS * 180 / np.pi, plume_detected_prob, yerr=[err_lower, err_upper], lw=2)
 
 ax.set_xlim(-180, 180)
 ax.set_xticks(np.linspace(-180, 180, 9))
 ax.set_ylim(0, 1)
 
 ax.set_xlabel('heading (degrees)')
-ax.set_ylabel('P(found plume)')
+ax.set_ylabel('P(plume detected)')
+
+ax.set_title('probabilistic')
 
 plt.show(block=True)

@@ -4,6 +4,9 @@ import numpy as np
 
 class Searcher(object):
 
+    def __init__(self):
+        self.pos = None
+        
     def reset(self):
         self.pos = np.array([0., 0])
 
@@ -54,13 +57,13 @@ class LevySearcher2D(Searcher):
     Search agent that moves along levy-flight path.
     """
 
-    def __init__(self, levy_index, speed, dt, path_duration_max):
+    def __init__(self, levy_index, speed, dt, search_duration_max):
         self.levy_index = levy_index
         self.speed = speed
         self.dt = dt
-        self.path_duration_max = path_duration_max
+        self.search_duration_max = search_duration_max
         self.step_size = self.dt * self.speed
-        self.path_duration_max_int = round(path_duration_max / dt)
+        self.path_duration_max_int = round(search_duration_max / dt)
 
         self.pos = None
         self.sample_next_path = True

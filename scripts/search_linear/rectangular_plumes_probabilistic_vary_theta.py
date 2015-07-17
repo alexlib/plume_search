@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from math_tools import stats
 import search_agent
 import simulation
-from scripts.config.rectangular_plumes_probabilistic_vary_theta import *
+from config.rectangular_plumes_probabilistic_vary_theta import *
 
 
 plume_found = np.zeros((N_ENVIRONMENTS, len(THETAS)))

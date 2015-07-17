@@ -25,8 +25,9 @@ class Trial2d(object):
         self.n_steps_max = int(np.floor(search_time_max / dt))
         self.step_ctr = 0
 
-        self.plume_found = False
-        self.plume_found_pos = None
+        self.plume_detected = False
+        self.plume_detected_pos = None
+        self.search_time = None
 
     def step(self):
         """
@@ -36,34 +37,37 @@ class Trial2d(object):
         self.agent.move(self.dt)
 
         if self.env.sample(self.agent.pos[0], self.agent.pos[1], dt=self.dt):
-            self.plume_found = True
-            self.plume_found_pos = self.agent.pos
+            self.plume_detected = True
+            self.plume_detected_pos = self.agent.pos
             self.search_time = self.step_ctr * self.dt
 
-    def run(self, with_plot=False, ax=None, draw_every=10):
+    def run(self, with_plot=False, ax=None, draw_every=10, draw_background=True):
         """
         Step until plume is found, updating with plot if desired.
 
         :param with_plot: set to True to show plot
         :param ax: axis on which to draw plot
         :param draw_every: how many timesteps between plot updates
+        :param draw_background: set to True to calculate and draw the background
+            (you might want to set it to False if you're plotting multiple trajectories on one environment)
         """
         self.traj = []
 
         if with_plot:
-            # show plume profiles
-            heatmap, extent = self.env.heatmap()
-            ax.matshow(heatmap.T, origin='lower', cmap=cm.hot, extent=extent, zorder=0)
-            # show insect boundary
-            bound = self.env.agent_search_radius
-            kwargs = {'color': 'w', 'lw': 2}
-            ax.vlines(-bound, ymin=-bound, ymax=bound, **kwargs)
-            ax.vlines(bound, ymin=-bound, ymax=bound, **kwargs)
-            ax.hlines(-bound, xmin=-bound, xmax=bound, **kwargs)
-            ax.hlines(bound, xmin=-bound, xmax=bound, **kwargs)
+            if draw_background:
+                # show plume profiles
+                heatmap, extent = self.env.heatmap()
+                ax.matshow(heatmap.T, origin='lower', cmap=cm.hot, extent=extent, zorder=0)
+                # show insect boundary
+                bound = self.env.agent_search_radius
+                kwargs = {'color': 'w', 'lw': 2}
+                ax.vlines(-bound, ymin=-bound, ymax=bound, **kwargs)
+                ax.vlines(bound, ymin=-bound, ymax=bound, **kwargs)
+                ax.hlines(-bound, xmin=-bound, xmax=bound, **kwargs)
+                ax.hlines(bound, xmin=-bound, xmax=bound, **kwargs)
 
-            ax.set_xlim(extent[:2])
-            ax.set_ylim(extent[2:])
+                ax.set_xlim(extent[:2])
+                ax.set_ylim(extent[2:])
 
             ax.set_xlabel('x (m)')
             ax.set_ylabel('y (m)')
@@ -79,9 +83,15 @@ class Trial2d(object):
                 ax.plot(np.array(self.traj)[:, 0], np.array(self.traj)[:, 1], c='b', lw=2, zorder=5)
                 plt.draw()
 
-            if self.plume_found:
+            if self.plume_detected:
                 if with_plot:
                     ax.plot(np.array(self.traj)[:, 0], np.array(self.traj)[:, 1], c='b', lw=2, zorder=5)
                     ax.scatter(self.agent.pos[0], self.agent.pos[1], marker='x', s=50, lw=4, c='c', zorder=10)
                     plt.draw()
                 break
+
+
+class Simulation(object):
+
+    def __init__(self, plume_structure, agents, n_environments):
+        pass

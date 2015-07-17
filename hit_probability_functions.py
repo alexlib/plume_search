@@ -29,20 +29,22 @@ def uniform_box_probabilistic(dx, dy, dim_x, dim_y, p):
     return p * (within_bdry_x * within_bdry_y)
 
 
-def gaussian_concentration(dx, dy, r, d, w):
+def gaussian_concentration(dx, dy, r, d, w, tau):
     """
     Return concentration at a displacement from a "gaussian" plume source.
+    Note that particles are assumed to have finite lifetime given by tau.
     :param dx: x-displacement from source
     :param dy: y-displacement from source
+    :param r: source emission rate
     :param d: diffusivity
     :param w: windspeed
-    :param r: source emission rate
+    :param tau: particle lifetime (s)
     :return:
     """
     if isinstance(dx, (int, long, float)):
         if dx == 0 and dy == 0:
             c = np.inf
-        elif dx <= 0:
+        elif dx <= 0 or dx > w * tau:
             c = 0.
         else:
             norm_factor = r / (2 * np.sqrt(np.pi * d * dx))

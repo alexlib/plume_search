@@ -5,7 +5,7 @@ import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 plt.ion()
 
-import environment
+import environments
 import plume_structures
 
 
@@ -22,14 +22,14 @@ class Environment2dGaussianPlumeStructureTestCase(unittest.TestCase):
         self.plume_structure = plume_structures.Gaussian2D(**self.params)
         self.src_density = 0.01
         self.agent_search_radius = 10
-        self.env_random = environment.Environment2d(self.plume_structure, self.src_density, self.agent_search_radius)
+        self.env_random = environments.Environment2d(self.plume_structure, self.src_density, self.agent_search_radius)
         src_positions_fixed = np.array([[-3.1, 0], [5.1, 3.2], [-8.9, -2.7]])
-        self.env_fixed = environment.Environment2d(self.plume_structure,
+        self.env_fixed = environments.Environment2d(self.plume_structure,
                                                    self.src_density,
                                                    self.agent_search_radius,
                                                    src_positions_fixed)
         src_positions_single = np.array([[5.1, 3.2]])
-        self.env_single_src = environment.Environment2d(self.plume_structure,
+        self.env_single_src = environments.Environment2d(self.plume_structure,
                                                         self.src_density,
                                                         self.agent_search_radius,
                                                         src_positions_single)

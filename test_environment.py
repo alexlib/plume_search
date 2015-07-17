@@ -2,7 +2,7 @@ from __future__ import division, print_function
 import unittest
 import numpy as np
 
-import environment
+import environments
 import plume_structures
 
 
@@ -19,12 +19,12 @@ class Environment2dGaussianPlumeStructureTestCase(unittest.TestCase):
         self.plume_structure = plume_structures.Gaussian2D(**self.params)
         self.src_density = 0.1
         self.agent_search_radius = 10
-        self.env = environment.Environment2d(self.plume_structure,
+        self.env = environments.Environment2d(self.plume_structure,
                                              self.src_density,
                                              self.agent_search_radius,
                                              src_positions='random')
         src_positions_single = np.array([[-1., 1]])
-        self.env_single_src = environment.Environment2d(self.plume_structure,
+        self.env_single_src = environments.Environment2d(self.plume_structure,
                                                         self.src_density,
                                                         self.agent_search_radius,
                                                         src_positions=src_positions_single)

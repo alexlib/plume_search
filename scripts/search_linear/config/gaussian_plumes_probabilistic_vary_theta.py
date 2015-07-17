@@ -10,7 +10,7 @@ AGENT_SEARCH_RADIUS = SEARCH_TIME_MAX * DT
 SRC_POSITIONS = 'random'
 
 # PLUME STRUCTURE PARAMETERS
-PARAMS_PLUME_STRUCTURE = {'r': .02,
+PARAMS_PLUME_STRUCTURE = {'r': 0.02,
                           'd': 0.02,
                           'w': 0.5,
                           'tau': 24,

@@ -5,7 +5,7 @@ import numpy as np
 import plume_structures
 
 
-class GaussianPlumeModelsTestCase(unittest.TestCase):
+class Gaussian2DTestCase(unittest.TestCase):
 
     def setUp(self):
         print('In method "{}"...'.format(self._testMethodName))
@@ -51,6 +51,48 @@ class GaussianPlumeModelsTestCase(unittest.TestCase):
 
         for idx in range(4, 6):
             self.assertGreater(c[idx], 0)
+
+    def test_miss_probability_is_zero_at_source_and_one_out_of_bounds(self):
+        dt = .1
+        miss_prob_at_src = self.plume_structure.miss_probability(0, 0, dt)
+        hit_prob_at_src = self.plume_structure.hit_probability(0, 0, dt)
+
+        miss_prob_past_uw_bound = self.plume_structure.miss_probability(-.1, 0, dt)
+        hit_prob_past_uw_bound = self.plume_structure.hit_probability(-.1, 0, dt)
+
+        dw_bound = self.plume_structure.bdry[1]
+        miss_prob_past_dw_bound = self.plume_structure.miss_probability(dw_bound + 0.1, 0, dt)
+        hit_prob_past_dw_bound = self.plume_structure.hit_probability(dw_bound + 0.1, 0, dt)
+
+        cw_bound = self.plume_structure.bdry[2]
+        miss_prob_past_cw_bound = self.plume_structure.miss_probability(0, cw_bound + 0.1, dt)
+        hit_prob_past_cw_bound = self.plume_structure.hit_probability(0, cw_bound + 0.1, dt)
+
+        self.assertEqual(miss_prob_at_src, 0)
+        self.assertEqual(hit_prob_at_src, 1)
+
+        self.assertEqual(miss_prob_past_uw_bound, 1)
+        self.assertEqual(hit_prob_past_uw_bound, 0)
+        self.assertEqual(miss_prob_past_dw_bound, 1)
+        self.assertEqual(hit_prob_past_dw_bound, 0)
+        self.assertEqual(miss_prob_past_cw_bound, 1)
+        self.assertEqual(hit_prob_past_cw_bound, 0)
+
+    def test_random_hit_and_miss_probs_add_to_1(self):
+        dt = 0.1
+
+        for ctr in range(50):
+            x = np.random.uniform(-self.plume_structure.bdry[0], self.plume_structure.bdry[1])
+            y = np.random.uniform(-self.plume_structure.bdry[2], self.plume_structure.bdry[3])
+
+            miss_prob = self.plume_structure.miss_probability(x, y, dt)
+            hit_prob = self.plume_structure.hit_probability(x, y, dt)
+
+            self.assertGreater(miss_prob, 0)
+            self.assertGreaterEqual(hit_prob, 0)
+            self.assertLessEqual(miss_prob, 1)
+            self.assertLess(hit_prob, 1)
+            self.assertAlmostEqual(miss_prob + hit_prob, 1)
 
 
 if __name__ == '__main__':

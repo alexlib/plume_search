@@ -100,7 +100,7 @@ class Gaussian2D(PlumeStructure):
             return c
 
 
-class GaussianPlume2DSolid(Gaussian2D):
+class Gaussian2DSolid(Gaussian2D):
     """
     Solid Gaussian plume (plume detected as soon as agent enters plume envelope).
     :param r: source emission rate
@@ -116,7 +116,7 @@ class GaussianPlume2DSolid(Gaussian2D):
         super(self.__class__, self).__init__(r, d, w, tau, q)
         self.threshold = threshold
 
-    def miss_probability(self, dx, dy):
+    def miss_probability(self, dx, dy, dt):
         """
         Return probability of a miss at a given displacement.
         :param dx: x-displacement from source (positive is downwind of source)
@@ -124,4 +124,4 @@ class GaussianPlume2DSolid(Gaussian2D):
         :return: probability
         """
 
-        return np.array(self.c(dx, dy) < self.threshold).astype(float)
+        return np.array(self.conc(dx, dy) < self.threshold).astype(float)

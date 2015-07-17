@@ -1,8 +1,8 @@
 from __future__ import division
 import numpy as np
 
-SRC_DENSITY = 0.04  # per m^2
-SEARCH_TIME_MAX = 20  # s
+SRC_DENSITY = 0.16  # per m^2
+SEARCH_TIME_MAX = 5  # s
 SPEED = 0.5  # m/s
 DT = .1
 AGENT_SEARCH_RADIUS = SEARCH_TIME_MAX * DT

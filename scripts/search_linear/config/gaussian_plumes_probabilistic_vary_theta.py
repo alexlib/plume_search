@@ -11,9 +11,9 @@ SRC_POSITIONS = 'random'
 
 # PLUME STRUCTURE PARAMETERS
 PARAMS_PLUME_STRUCTURE = {'r': .02,
-                          'd': .04,
+                          'd': 0.02,
                           'w': 0.5,
-                          'tau': 30,
+                          'tau': 24,
                           'q': .0001}
 
 # LOOPING PARAMETERS

@@ -2,7 +2,7 @@ from __future__ import division, print_function
 
 import matplotlib.pyplot as plt
 
-import environment
+import environments
 import search_agent
 import plume_structures
 import simulation
@@ -15,7 +15,7 @@ def main():
 
     agent_search_radius = SPEED * SEARCH_TIME_MAX
 
-    env = environment.Environment2d(plume_structure, SRC_DENSITY, agent_search_radius)
+    env = environments.Environment2d(plume_structure, SRC_DENSITY, agent_search_radius)
 
     _, ax = plt.subplots(1, 1, facecolor='white')
 

@@ -8,7 +8,8 @@ THETAS = np.linspace(0, 2*np.pi, 8, endpoint=False)
 DT = .1
 
 # HIT PROBABILITY PARAMS
-PARAMS = {'dt': DT,
-          'r': .02,
+PARAMS = {'r': 0.02,
           'd': 0.02,
-          'w': 0.5}
+          'w': 0.5,
+          'tau': 24,
+          'q': .0001}

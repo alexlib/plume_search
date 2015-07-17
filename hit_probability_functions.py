@@ -1,5 +1,5 @@
 import numpy as np
-from logprob_odor import advec_diff_mean_hit_rate
+#from logprob_odor import advec_diff_mean_hit_rate
 
 
 def uniform_box_solid(dx, dy, dim_x, dim_y):

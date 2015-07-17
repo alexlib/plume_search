@@ -55,6 +55,13 @@ class Environment2d(object):
 
         return 1 - self.miss_probability(x, y, dt)
 
+    def sample(self, x, y, dt):
+
+        if isinstance(x, np.ndarray) or isinstance(y, np.ndarray):
+            raise TypeError('"x" and "y" cannot be arrays!')
+
+        return int(np.random.rand() < self.hit_probability(x, y, dt))
+
     def heatmap(self, resolution=(500, 500)):
         """
         Compute the 2D heatmap of the environment.

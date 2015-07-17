@@ -2,34 +2,32 @@ from __future__ import division, print_function
 
 import matplotlib.pyplot as plt
 
+import environments
 import search_agent
-import hit_probability_functions
+import plume_structures
 import simulation
-from demo.search_linear.config.demo_gaussian_plumes_solid import *
+
+from config.demo_gaussian_plumes_solid import *
 
 
 def main():
-    hit_probability_function = hit_probability_functions.gaussian_solid
-    sim = simulation.Simulation(hit_probability_function, PARAMS,
-                                SRC_DENSITY, SEARCH_TIME_MAX, DT,
-                                plume_map_resolution=(500, 500))
+    plume_structure = plume_structures.Gaussian2DSolid(**PARAMS)
 
-    agent1 = search_agent.LinearSearcher(theta=THETAS[0], speed=SPEED)
-    sim.agent = agent1
+    agent_search_radius = SPEED * SEARCH_TIME_MAX
 
-    sim.set_src_positions('random')
+    env = environments.Environment2d(plume_structure, SRC_DENSITY, agent_search_radius)
 
     _, ax = plt.subplots(1, 1, facecolor='white')
-    sim.run(with_plot=True, ax=ax, draw_every=20)
 
-    for theta in THETAS[1:]:
+    draw_background = True
+    for theta in THETAS:
+        agent = search_agent.LinearSearcher(theta=theta, speed=SPEED)
+        trial = simulation.Trial2d(env, agent, SEARCH_TIME_MAX, DT)
+        trial.run(with_plot=True, ax=ax, draw_every=20, draw_background=draw_background)
+        draw_background = False
 
-        agent2 = search_agent.LinearSearcher(theta=theta, speed=SPEED)
-
-        sim.reset()
-        sim.agent = agent2
-        sim.run(with_plot=True, ax=ax, draw_every=20)
     plt.show(block=True)
+
 
 if __name__ == '__main__':
     main()

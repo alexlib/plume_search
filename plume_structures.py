@@ -35,7 +35,7 @@ class PlumeStructure(object):
         :return: probability
         """
 
-        return np.exp(-self.c(dx, dy) * dt)
+        return np.exp(-self.conc(dx, dy) * dt)
 
     def hit_probability(self, dx, dy, dt):
         """

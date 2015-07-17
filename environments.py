@@ -60,7 +60,6 @@ class Environment2d(object):
         if isinstance(x, np.ndarray) or isinstance(y, np.ndarray):
             raise TypeError('"x" and "y" cannot be arrays!')
 
-        print(self.hit_probability(x, y, dt))
         return int(np.random.rand() < self.hit_probability(x, y, dt))
 
     def heatmap(self, resolution=(500, 500)):
